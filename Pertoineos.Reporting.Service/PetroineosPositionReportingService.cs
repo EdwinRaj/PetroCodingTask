@@ -22,24 +22,18 @@ namespace Pertoineos.Reporting.Service
             _log = LogManager.GetLogger("PowerPositionReportingService");
         }
 
-        protected override void OnStart(string[] args)
+        protected override async void OnStart(string[] args)
         {
             try
             {
                 _log.Info("Starting the PetroineosPositionReporting Windows Service");
-                Task t = _powerTradeManager.StartReporting();
-                if (t.IsFaulted)
-                {
-                    _log.Error(t.Exception);
-                }
-                else
-                {
-                    _log.Info("PetroineosPositionReporting Windows Service successfully started");
-                }
+                await _powerTradeManager.StartReporting();
+                _log.Info("PetroineosPositionReporting Windows Service successfully started");
             }
             catch (Exception ex)
             {
-                _log.Error(ex.ToString());
+                _log.Fatal("Failed to Start PetroineosPositionReporting Windows Service!!");
+                _log.Fatal(ex.ToString());
             }
         }
 

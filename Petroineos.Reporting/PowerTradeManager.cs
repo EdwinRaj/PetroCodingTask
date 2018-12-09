@@ -32,7 +32,10 @@ namespace Petroineos.Reporting
 
         public async Task StartReporting()
         {
-            if (!TryResolvingReportingFilePath() || !TryResolvingScheduleInterval()) return;
+            if (!TryResolvingReportingFilePath() || !TryResolvingScheduleInterval())
+            {
+                throw new ConfigurationErrorsException("Invalid Configuration. Check If valid Reporting path and scheduled interval are specified");
+            }
 
             _log.Info($"Reporting Path:{_reportFilePath}");
             _log.Info($"Reporting Interval is every {_reportingIntervalInMinutes} Minutes");
@@ -46,7 +49,7 @@ namespace Petroineos.Reporting
             var scheduleIntervalInMinutes = ConfigurationManager.AppSettings["ScheduleIntervalInMinutes"];
             if ((IsValidConfiguration(scheduleIntervalInMinutes) && int.TryParse(scheduleIntervalInMinutes, out _reportingIntervalInMinutes)) == false)
             {
-                _log.Fatal("Schedule Interval is not Specified");
+                _log.Error("Schedule Interval is not Specified");
                 return false;
             }
             return true;
@@ -67,7 +70,7 @@ namespace Petroineos.Reporting
             }
             else
             {
-                _log.Fatal("Report File System Path is not Specified");
+                _log.Error("Report File System Path is not Specified");
                 return false;
             }
             return true;
@@ -93,7 +96,7 @@ namespace Petroineos.Reporting
                 while (true)
                 {
                     _log.Info("Report Generation Started");
-                    await action();
+                    action();
                     _log.Info("Report Generation Completed");
 
                     _log.Info($"Going to Sleep for configured interval {_reportingIntervalInMinutes} minutes");
@@ -102,7 +105,7 @@ namespace Petroineos.Reporting
                     await task;
                 }
             }
-            catch (TaskCanceledException _)
+            catch (TaskCanceledException)
             {
                 _log.Info("Task Cancellation requested.");
 
