@@ -18,7 +18,6 @@ namespace Petroineos.Reporting
         private readonly IPowerTradeProvider _tradeProvider;
         private readonly IPowerTradeAggregator _tradeAggregator;
         private string _reportFilePath;
-        private object _lockObject = new object();
         private CancellationTokenSource _cancellationTokenSource;
         int _reportingIntervalInMinutes = 0;
 
@@ -26,7 +25,7 @@ namespace Petroineos.Reporting
         {
             _log = LogManager.GetLogger("PowerTrade");
             _tradeProvider = new PowerTradeProvider(_log);
-            _tradeAggregator = new PowerTradeAggregator();
+            _tradeAggregator = new PowerTradeAggregator(_log);
 
         }
 
@@ -82,10 +81,12 @@ namespace Petroineos.Reporting
             var powerTrades = await _tradeProvider.GetPowerTradeAsync();
             var powerTradePositions = _tradeAggregator.AggregatePowerTrades(powerTrades);
 
-            var reportName = Path.Combine(_reportFilePath, $"PowerPosition_{DateTime.Now.ToString("yyyyMMdd_HHmm")}.csv");
+            var reportName = Path.Combine(_reportFilePath, $"PowerPosition_{DateTime.Now:yyyyMMdd_HHmm}.csv");
 
             //Generate CSV file
             WriteToCsv(powerTradePositions, reportName);
+
+            _log.Info("Report Generation Completed");
 
         }
 
@@ -95,9 +96,8 @@ namespace Petroineos.Reporting
             {
                 while (true)
                 {
-                    _log.Info("Report Generation Started");
+                    _log.Info("Report Generation Initiated");
                     action();
-                    _log.Info("Report Generation Completed");
 
                     _log.Info($"Going to Sleep for configured interval {_reportingIntervalInMinutes} minutes");
                     Task task = Task.Delay(interval, cancellationToken);
@@ -107,9 +107,7 @@ namespace Petroineos.Reporting
             }
             catch (TaskCanceledException)
             {
-                _log.Info("Task Cancellation requested.");
-
-                return;
+                _log.Info("Task Cancellation Successful.");
             }
             catch (Exception ex)
             {
@@ -146,7 +144,8 @@ namespace Petroineos.Reporting
 
         public void StopReporting()
         {
-            _cancellationTokenSource.Cancel();
+            _log.Info("Requesting Task Cancellation");
+            _cancellationTokenSource?.Cancel();
         }
 
         private static bool IsValidConfiguration(string configuredValue)
@@ -156,7 +155,7 @@ namespace Petroineos.Reporting
 
     }
 
-    public class PowerTradePositionMap: CsvHelper.Configuration.ClassMap<PowerTradePosition>
+    public sealed class PowerTradePositionMap: CsvHelper.Configuration.ClassMap<PowerTradePosition>
     {
         public PowerTradePositionMap()
         {

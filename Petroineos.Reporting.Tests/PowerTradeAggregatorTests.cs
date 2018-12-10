@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using log4net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Services;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,8 @@ namespace Petroineos.Reporting.Tests
             int volumeFactor = 1;
             int tradesCount = 2;
             var testTrades = GeneratePowerPeriods(tradesCount, 24, volumeFactor);
-            PowerTradeAggregator aggregator = new PowerTradeAggregator();
+            ILog log = LogManager.GetLogger("TradeTest");
+            PowerTradeAggregator aggregator = new PowerTradeAggregator(log);
             var result = aggregator.AggregatePowerTrades(testTrades).ToList();
 
             for (int i = 0; i < result.Count; i++)
@@ -26,8 +28,6 @@ namespace Petroineos.Reporting.Tests
                 Assert.AreEqual(i+1, result[i].Period);
                 Assert.AreEqual(volumeFactor * tradesCount, result[i].Volume);
             }
-
-
         }
 
         private List<PowerTrade> GeneratePowerPeriods(int totalTrades,int totalPeriods,double volumeFactor)

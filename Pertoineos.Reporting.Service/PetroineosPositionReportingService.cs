@@ -28,7 +28,6 @@ namespace Pertoineos.Reporting.Service
             {
                 _log.Info("Starting the PetroineosPositionReporting Windows Service");
                 await _powerTradeManager.StartReporting();
-                _log.Info("PetroineosPositionReporting Windows Service successfully started");
             }
             catch (Exception ex)
             {

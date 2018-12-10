@@ -2,18 +2,22 @@
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Petroineos.Reporting
 {
     public class PowerTradeAggregator : IPowerTradeAggregator
     {
-
-        public IEnumerable<PowerTradePosition> AggregatePowerTrades(IEnumerable<PowerTrade> powerTrades)
+        private readonly ILog _log;
+        public PowerTradeAggregator(ILog log)
+        {
+            _log = log;
+        }
+        public ReadOnlyCollection<PowerTradePosition> AggregatePowerTrades(IEnumerable<PowerTrade> powerTrades)
         {
             Dictionary<int, double> powerTradeVolumes = new Dictionary<int, double>();
+            
             if (powerTrades != null)
             {
                 foreach (var trade in powerTrades)
@@ -31,50 +35,35 @@ namespace Petroineos.Reporting
                     }
                 }
             }
-            return powerTradeVolumes.Select(kvp => new PowerTradePosition(kvp.Key, kvp.Value)).ToList();
-
+            return powerTradeVolumes.Select(kvp => new PowerTradePosition(kvp.Key, kvp.Value)).ToList().AsReadOnly();
         }
-        //private void Archieve()
-        //{
-
-
-        //    Task<IEnumerable<PowerTrade>> getPowerTradeTask = _powerTradeProvider.GetPowerTrade();
-        //    getPowerTradeTask.Start();
-
-        //    if (getPowerTradeTask.IsCompleted && !getPowerTradeTask.IsFaulted && !getPowerTradeTask.IsCanceled)
-        //    {
-        //        var currentTrades = getPowerTradeTask.Result;
-
-        //    }
-
-        //}
     }
 
     public interface IPowerTradeAggregator
     {
-        IEnumerable<PowerTradePosition> AggregatePowerTrades(IEnumerable<PowerTrade> powerTrades);
+        ReadOnlyCollection<PowerTradePosition> AggregatePowerTrades(IEnumerable<PowerTrade> powerTrades);
     }
 
     public class PowerTradePosition
     {
-        public int Period { get;  }
+        public int Period { get; }
 
-        public TimeSpan LocalTime
-        {
-            get
-            {
-                int startHour = 23;
-                int resolvedHour = (startHour + (Period - 1)) % 24;
-                return TimeSpan.FromHours(resolvedHour);
-            }
-        }
+        public TimeSpan LocalTime { get; }
 
-        public double Volume { get;  }
+        public double Volume { get; }
 
         public PowerTradePosition(int period, double volume)
         {
             Period = period;
             Volume = volume;
+            LocalTime = CalculateLocatTime(period);
+        }
+
+        private TimeSpan CalculateLocatTime(int period)
+        {
+            int startHour = 23;
+            int resolvedHour = (startHour + (Period - 1)) % 24;
+            return TimeSpan.FromHours(resolvedHour);
         }
     }
 }

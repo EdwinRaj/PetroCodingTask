@@ -2,6 +2,7 @@
 using Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace Petroineos.Reporting
             _log = log;
             _powerService = new PowerService();
         }
-        public async Task<IEnumerable<PowerTrade>> GetPowerTradeAsync()
+        public async Task<ReadOnlyCollection<PowerTrade>> GetPowerTradeAsync()
         {
             int retries = 0, maxRetries = 3;
             _log.Info("Attempting to Retrieving power trades");
@@ -27,7 +28,12 @@ namespace Petroineos.Reporting
                 {
                     var results = await _powerService.GetTradesAsync(DateTime.Now);
                     _log.Info($"Power trades successfully retrieved in the {retries + 1} attempt");
-                    return results;
+                    if(results != null)
+                    {
+                        var powerTradesReadOnlyList =  results.ToList().AsReadOnly();
+                        _log.Info($"Received {powerTradesReadOnlyList.Count} trades");
+                        return powerTradesReadOnlyList;
+                    }
                 }
                 catch (PowerServiceException serviceException)
                 {
@@ -54,6 +60,6 @@ namespace Petroineos.Reporting
 
     public interface IPowerTradeProvider
     {
-        Task<IEnumerable<PowerTrade>> GetPowerTradeAsync();
+        Task<ReadOnlyCollection<PowerTrade>> GetPowerTradeAsync();
     }
 }

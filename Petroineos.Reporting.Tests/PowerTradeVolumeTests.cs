@@ -24,5 +24,7 @@ namespace Petroineos.Reporting.Tests
             PowerTradePosition powerTradeVolume = new PowerTradePosition(period, 1);
             Assert.AreEqual(expectedHour, powerTradeVolume.LocalTime);
         }
+
+
     }
 }
