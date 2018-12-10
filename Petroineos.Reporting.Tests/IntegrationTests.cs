@@ -18,7 +18,7 @@ namespace Petroineos.Reporting.Tests
 
             System.Threading.Thread.Sleep(TimeSpan.FromSeconds(30));
             manager.StopReporting();
-
+            Assert.IsTrue();
         }
     }
 }

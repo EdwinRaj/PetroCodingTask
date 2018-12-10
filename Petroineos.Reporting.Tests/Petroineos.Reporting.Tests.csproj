@@ -55,7 +55,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IntegrationTests.cs" />
     <Compile Include="PowerTradeAggregatorTests.cs" />
     <Compile Include="PowerTradeVolumeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -25,7 +25,7 @@ namespace Petroineos.Reporting.Tests
 
             for (int i = 0; i < result.Count; i++)
             {
-                Assert.AreEqual(i+1, result[i].Period);
+                Assert.AreEqual(i + 1, result[i].Period);
                 Assert.AreEqual(volumeFactor * tradesCount, result[i].Volume);
             }
         }
@@ -36,15 +36,15 @@ namespace Petroineos.Reporting.Tests
 
         }
 
-            private List<PowerTrade> GeneratePowerPeriods(int totalTrades,int totalPeriods,double volumeFactor)
+        private List<PowerTrade> GeneratePowerPeriods(int totalTrades, int totalPeriods, double volumeFactor)
         {
-            List<PowerTrade> testTrades =  Enumerable.Range(0, totalTrades).Select(index => PowerTrade.Create(DateTime.Now, totalPeriods)).ToList();
+            List<PowerTrade> testTrades = Enumerable.Range(0, totalTrades).Select(index => PowerTrade.Create(DateTime.Now, totalPeriods)).ToList();
             foreach (var trade in testTrades)
             {
                 for (int i = 1; i <= totalPeriods; i++)
                 {
-                    trade.Periods[i-1].Period = i;
-                    trade.Periods[i-1].Volume = 1 * volumeFactor;
+                    trade.Periods[i - 1].Period = i;
+                    trade.Periods[i - 1].Volume = 1 * volumeFactor;
                 }
             }
 
