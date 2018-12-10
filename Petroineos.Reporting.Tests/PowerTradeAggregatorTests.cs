@@ -30,7 +30,13 @@ namespace Petroineos.Reporting.Tests
             }
         }
 
-        private List<PowerTrade> GeneratePowerPeriods(int totalTrades,int totalPeriods,double volumeFactor)
+        [TestMethod]
+        public void GivenInvalidPowerTrades_WhenAggregated_ReturnsException()
+        {
+
+        }
+
+            private List<PowerTrade> GeneratePowerPeriods(int totalTrades,int totalPeriods,double volumeFactor)
         {
             List<PowerTrade> testTrades =  Enumerable.Range(0, totalTrades).Select(index => PowerTrade.Create(DateTime.Now, totalPeriods)).ToList();
             foreach (var trade in testTrades)
